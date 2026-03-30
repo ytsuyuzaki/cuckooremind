@@ -60,6 +60,12 @@
             "@php -r \"file_exists('database/database_testing.sqlite') || touch('database/database_testing.sqlite');\"",
             "@php artisan migrate --env=testing",
             "@php artisan test"
+        ],
+        "test:coverage": [
+            "@php scripts/run-test-coverage.php"
+        ],
+        "coverage:serve": [
+            "@php -S 0.0.0.0:8080 -t coverage/html"
         ]
     },
     "extra": {
