@@ -78,7 +78,7 @@ class Reminder extends Model
     {
         return Attribute::make(
             get: function (mixed $value, array $attributes) {
-                [$hour, $min] = explode(':', $attributes['time']);
+                [$hour, $min] = array_map('intval', explode(':', $attributes['time']));
 
                 $date = now();
                 $date->hour = $hour;
