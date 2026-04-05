@@ -18,8 +18,7 @@ class UserInvitation extends Mailable
     public function __construct(
         public TeamInvitationModel $invitation,
         public string $token,
-    ) {
-    }
+    ) {}
 
     /**
      * Build the message.
