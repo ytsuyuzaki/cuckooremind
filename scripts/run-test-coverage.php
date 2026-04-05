@@ -13,7 +13,7 @@ $coverageDriver = match (true) {
 };
 
 if ($coverageDriver === null) {
-    fwrite(STDERR, <<<TEXT
+    fwrite(STDERR, <<<'TEXT'
 Code coverage requires either the Xdebug or PCOV PHP extension.
 
 Install one of them and run this command again:
@@ -24,14 +24,14 @@ TEXT);
     exit(1);
 }
 
-$coverageDir = $projectRoot . '/coverage';
+$coverageDir = $projectRoot.'/coverage';
 
 if (! is_dir($coverageDir) && ! mkdir($coverageDir, 0777, true) && ! is_dir($coverageDir)) {
     fwrite(STDERR, "Failed to create coverage output directory: {$coverageDir}\n");
     exit(1);
 }
 
-$testingDatabase = $projectRoot . '/database/database_testing.sqlite';
+$testingDatabase = $projectRoot.'/database/database_testing.sqlite';
 
 if (! file_exists($testingDatabase) && ! touch($testingDatabase)) {
     fwrite(STDERR, "Failed to create testing database file: {$testingDatabase}\n");
@@ -58,8 +58,9 @@ run([
 $testCommand = [PHP_BINARY];
 
 if ($coverageDriver === 'xdebug') {
-    $testCommand[] = '-d';
-    $testCommand[] = 'xdebug.mode=coverage';
+    putenv('XDEBUG_MODE=coverage');
+    $_ENV['XDEBUG_MODE'] = 'coverage';
+    $_SERVER['XDEBUG_MODE'] = 'coverage';
 }
 
 array_push(

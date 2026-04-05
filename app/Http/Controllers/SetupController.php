@@ -19,8 +19,7 @@ class SetupController extends Controller
     public function __construct(
         protected StatefulGuard $guard,
         protected WriteDotenvService $writeDotenvService,
-    ) {
-    }
+    ) {}
 
     public function create(Request $request)
     {

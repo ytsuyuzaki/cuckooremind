@@ -16,8 +16,7 @@ class SendMail extends Notification
      */
     public function __construct(
         protected Reminder $reminder,
-    ) {
-    }
+    ) {}
 
     /**
      * Get the notification's delivery channels.
