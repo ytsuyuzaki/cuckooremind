@@ -58,8 +58,9 @@ run([
 $testCommand = [PHP_BINARY];
 
 if ($coverageDriver === 'xdebug') {
-    $testCommand[] = '-d';
-    $testCommand[] = 'xdebug.mode=coverage';
+    putenv('XDEBUG_MODE=coverage');
+    $_ENV['XDEBUG_MODE'] = 'coverage';
+    $_SERVER['XDEBUG_MODE'] = 'coverage';
 }
 
 array_push(
