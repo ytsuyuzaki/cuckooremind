@@ -37,7 +37,7 @@ class SystemUpdateControllerTest extends TestCase
         $this->actingAs($admin)
             ->get(route('system-updates.index'))
             ->assertOk()
-            ->assertSee('v0.0.3')
+            ->assertSee('v0.0.4')
             ->assertSee('Update notes')
             ->assertSee('ダウンロードして更新');
     }
@@ -50,7 +50,7 @@ class SystemUpdateControllerTest extends TestCase
         $this->actingAs($admin)
             ->from(route('system-updates.index'))
             ->post(route('system-updates.update'), [
-                'version' => 'v0.0.3',
+                'version' => 'v0.0.4',
                 'current_password' => 'wrong-password',
             ])
             ->assertRedirect(route('system-updates.index'))
@@ -64,12 +64,12 @@ class SystemUpdateControllerTest extends TestCase
         $updater = $this->mock(ApplicationUpdater::class);
         $updater->shouldReceive('update')
             ->once()
-            ->withArgs(fn (array $release, int $userId) => $release['version'] === 'v0.0.3' && $userId === $admin->id)
+            ->withArgs(fn (array $release, int $userId) => $release['version'] === 'v0.0.4' && $userId === $admin->id)
             ->andReturn(['status' => 'succeeded']);
 
         $this->actingAs($admin)
             ->post(route('system-updates.update'), [
-                'version' => 'v0.0.3',
+                'version' => 'v0.0.4',
                 'current_password' => 'password',
             ])
             ->assertRedirect(route('system-updates.index'))
@@ -80,13 +80,13 @@ class SystemUpdateControllerTest extends TestCase
     private function release(): array
     {
         return [
-            'tag_name' => 'v0.0.3',
-            'name' => 'v0.0.3',
+            'tag_name' => 'v0.0.4',
+            'name' => 'v0.0.4',
             'body' => '## Update notes',
             'draft' => false,
             'prerelease' => false,
             'published_at' => '2026-06-22T00:00:00Z',
-            'html_url' => 'https://github.com/ytsuyuzaki/cuckooremind/releases/tag/v0.0.3',
+            'html_url' => 'https://github.com/ytsuyuzaki/cuckooremind/releases/tag/v0.0.4',
             'assets' => [],
         ];
     }

@@ -19,21 +19,21 @@ class GitHubReleaseServiceTest extends TestCase
     public function test_it_returns_newest_stable_release_and_ignores_drafts_and_prereleases(): void
     {
         Http::fake(['*' => Http::response([
-            $this->release('v0.0.3'),
-            $this->release('v0.0.5', prerelease: true),
-            $this->release('v0.0.4', draft: true),
+            $this->release('v0.0.4'),
+            $this->release('v0.0.6', prerelease: true),
+            $this->release('v0.0.5', draft: true),
             $this->release('v0.0.1'),
         ])]);
 
         $service = app(GitHubReleaseService::class);
 
-        $this->assertSame('v0.0.3', $service->latest()['version']);
-        $this->assertSame('v0.0.3', $service->availableUpdate()['version']);
+        $this->assertSame('v0.0.4', $service->latest()['version']);
+        $this->assertSame('v0.0.4', $service->availableUpdate()['version']);
     }
 
     public function test_it_caches_release_responses_until_explicit_refresh(): void
     {
-        Http::fake(['*' => Http::response([$this->release('v0.0.3')])]);
+        Http::fake(['*' => Http::response([$this->release('v0.0.4')])]);
         $service = app(GitHubReleaseService::class);
 
         $service->releases();
