@@ -19,21 +19,21 @@ class GitHubReleaseServiceTest extends TestCase
     public function test_it_returns_newest_stable_release_and_ignores_drafts_and_prereleases(): void
     {
         Http::fake(['*' => Http::response([
-            $this->release('v0.0.4'),
-            $this->release('v0.0.6', prerelease: true),
-            $this->release('v0.0.5', draft: true),
-            $this->release('v0.0.1'),
+            $this->release($this->cuckooRemindVersionAfter()),
+            $this->release($this->cuckooRemindVersionAfter(3), prerelease: true),
+            $this->release($this->cuckooRemindVersionAfter(2), draft: true),
+            $this->release(cuckooremind_version()),
         ])]);
 
         $service = app(GitHubReleaseService::class);
 
-        $this->assertSame('v0.0.4', $service->latest()['version']);
-        $this->assertSame('v0.0.4', $service->availableUpdate()['version']);
+        $this->assertSame($this->cuckooRemindVersionAfter(), $service->latest()['version']);
+        $this->assertSame($this->cuckooRemindVersionAfter(), $service->availableUpdate()['version']);
     }
 
     public function test_it_caches_release_responses_until_explicit_refresh(): void
     {
-        Http::fake(['*' => Http::response([$this->release('v0.0.4')])]);
+        Http::fake(['*' => Http::response([$this->release($this->cuckooRemindVersionAfter())])]);
         $service = app(GitHubReleaseService::class);
 
         $service->releases();

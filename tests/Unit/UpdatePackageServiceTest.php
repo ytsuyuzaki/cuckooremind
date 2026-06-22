@@ -10,6 +10,8 @@ use ZipArchive;
 
 class UpdatePackageServiceTest extends TestCase
 {
+    private const PACKAGE_VERSION = 'v9.9.9';
+
     private array $directories = [];
 
     protected function setUp(): void
@@ -39,9 +41,9 @@ class UpdatePackageServiceTest extends TestCase
     {
         [$archive, $staging] = $this->package(['app/example.php' => '<?php return true;']);
 
-        $manifest = app(UpdatePackageService::class)->extractAndValidate($archive, $staging, 'v0.0.3');
+        $manifest = app(UpdatePackageService::class)->extractAndValidate($archive, $staging, self::PACKAGE_VERSION);
 
-        $this->assertSame('v0.0.3', $manifest['version']);
+        $this->assertSame(self::PACKAGE_VERSION, $manifest['version']);
         $this->assertFileExists($staging.'/app/example.php');
     }
 
@@ -52,7 +54,7 @@ class UpdatePackageServiceTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('ディレクトリトラバーサル');
 
-        app(UpdatePackageService::class)->extractAndValidate($archive, $staging, 'v0.0.3');
+        app(UpdatePackageService::class)->extractAndValidate($archive, $staging, self::PACKAGE_VERSION);
     }
 
     public function test_it_rejects_a_file_with_an_invalid_hash(): void
@@ -62,7 +64,7 @@ class UpdatePackageServiceTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('ハッシュが一致しません');
 
-        app(UpdatePackageService::class)->extractAndValidate($archive, $staging, 'v0.0.3');
+        app(UpdatePackageService::class)->extractAndValidate($archive, $staging, self::PACKAGE_VERSION);
     }
 
     public function test_it_downloads_and_verifies_a_release_asset(): void
@@ -74,7 +76,7 @@ class UpdatePackageServiceTest extends TestCase
 
         $package = $service->downloadAndPrepare($this->release($body));
 
-        $this->assertSame('v0.0.3', $package['manifest']['version']);
+        $this->assertSame(self::PACKAGE_VERSION, $package['manifest']['version']);
         $this->assertFileExists($package['staging'].'/app/example.php');
         $service->cleanup($package);
     }
@@ -85,9 +87,9 @@ class UpdatePackageServiceTest extends TestCase
         $this->expectExceptionMessage('許可されていない');
 
         app(UpdatePackageService::class)->downloadAndPrepare([
-            'version' => 'v0.0.3',
+            'version' => self::PACKAGE_VERSION,
             'assets' => [[
-                'name' => 'cuckooremind-v0.0.3.zip',
+                'name' => 'cuckooremind-'.self::PACKAGE_VERSION.'.zip',
                 'url' => 'https://example.com/update.zip',
                 'size' => 100,
                 'digest' => 'sha256:'.str_repeat('a', 64),
@@ -114,9 +116,9 @@ class UpdatePackageServiceTest extends TestCase
 
         $manifest = [
             'schema' => 1,
-            'version' => 'v0.0.3',
+            'version' => self::PACKAGE_VERSION,
             'minimum_upgradable_version' => 'v0.0.1',
-            'minimum_updater_version' => 'v0.0.2',
+            'minimum_updater_version' => 'v1.0.0',
             'minimum_php' => '8.2.0',
             'files' => $manifestFiles,
             'install_only' => ['.env', 'storage/db.sqlite'],
@@ -140,10 +142,10 @@ class UpdatePackageServiceTest extends TestCase
     private function release(string $archive): array
     {
         return [
-            'version' => 'v0.0.3',
+            'version' => self::PACKAGE_VERSION,
             'assets' => [[
-                'name' => 'cuckooremind-v0.0.3.zip',
-                'url' => 'https://github.com/ytsuyuzaki/cuckooremind/releases/download/v0.0.3/cuckooremind-v0.0.3.zip',
+                'name' => 'cuckooremind-'.self::PACKAGE_VERSION.'.zip',
+                'url' => 'https://github.com/ytsuyuzaki/cuckooremind/releases/download/'.self::PACKAGE_VERSION.'/cuckooremind-'.self::PACKAGE_VERSION.'.zip',
                 'size' => strlen($archive),
                 'digest' => 'sha256:'.hash('sha256', $archive),
             ]],
