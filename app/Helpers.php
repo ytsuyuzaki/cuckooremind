@@ -2,5 +2,7 @@
 
 function cuckooremind_version(): string
 {
-    return trim(file_get_contents(base_path('.version')));
+    $path = base_path('.version');
+
+    return is_file($path) ? trim((string) file_get_contents($path)) : 'v0.0.0';
 }
