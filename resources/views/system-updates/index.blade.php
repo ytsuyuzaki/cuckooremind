@@ -71,12 +71,6 @@
                 <form method="POST" action="{{ route('system-updates.update') }}" class="mt-5 space-y-4">
                     @csrf
                     <input type="hidden" name="version" value="{{ $availableUpdate['version'] }}">
-                    @unless ($isSqlite)
-                        <label class="flex items-start gap-3 text-sm text-gray-800">
-                            <input type="checkbox" name="database_backup_confirmed" value="1" required class="mt-1 rounded border-gray-300 text-indigo-600">
-                            MySQL/PostgreSQLの外部バックアップを取得済みです
-                        </label>
-                    @endunless
                     <div class="max-w-md">
                         <x-label for="current_password" value="確認のため現在のパスワードを入力してください" />
                         <x-input id="current_password" name="current_password" type="password" required autocomplete="current-password" class="mt-1 block w-full" />

@@ -9,7 +9,7 @@ use Throwable;
 
 class UpdateApplication extends Command
 {
-    protected $signature = 'app:update {--yes : 確認せずに更新する} {--database-backup-confirmed : 外部DBのバックアップ済み}';
+    protected $signature = 'app:update {--yes : 確認せずに更新する}';
 
     protected $description = 'GitHub Releases の最新版へ CuckooRemind を更新します';
 
@@ -28,7 +28,7 @@ class UpdateApplication extends Command
                 return self::SUCCESS;
             }
 
-            $updater->update($release, databaseBackupConfirmed: (bool) $this->option('database-backup-confirmed'));
+            $updater->update($release);
             $this->info('更新が完了しました。');
 
             return self::SUCCESS;

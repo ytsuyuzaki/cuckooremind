@@ -37,7 +37,6 @@ class SystemUpdateController extends Controller
             'availableUpdate' => $items && version_compare(ltrim($items[0]['version'], 'vV'), ltrim(cuckooremind_version(), 'vV'), '>') ? $items[0] : null,
             'state' => $state->get(),
             'error' => $error,
-            'isSqlite' => config('database.default') === 'sqlite',
             'environmentChecks' => $updater->environmentChecks((int) ($items[0]['assets'][0]['size'] ?? 0)),
         ]);
     }
@@ -61,9 +60,6 @@ class SystemUpdateController extends Controller
         $request->validate([
             'version' => ['required', 'string', 'max:64'],
             'current_password' => ['required', 'current_password'],
-            'database_backup_confirmed' => config('database.default') === 'sqlite'
-                ? ['nullable']
-                : ['required', 'accepted'],
         ]);
 
         try {
@@ -74,8 +70,7 @@ class SystemUpdateController extends Controller
 
             $updater->update(
                 $release,
-                $request->user()->id,
-                $request->boolean('database_backup_confirmed')
+                $request->user()->id
             );
 
             return redirect()->route('system-updates.index')->with('success', 'アプリケーションを更新しました。');

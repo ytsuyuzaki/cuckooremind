@@ -21,7 +21,7 @@ class ApplicationUpdater
      * @param  array<string, mixed>  $release
      * @return array<string, mixed>
      */
-    public function update(array $release, ?int $userId = null, bool $databaseBackupConfirmed = false): array
+    public function update(array $release, ?int $userId = null): array
     {
         if (! config('update.enabled')) {
             throw new RuntimeException('画面更新は無効です。');
@@ -47,7 +47,7 @@ class ApplicationUpdater
             @set_time_limit(0);
 
             $package = $this->packages->downloadAndPrepare($release);
-            $this->preflight($package['manifest'], filesize($package['archive']) ?: 0, $databaseBackupConfirmed);
+            $this->preflight($package['manifest'], filesize($package['archive']) ?: 0);
 
             $this->setStep('backup');
             $backup = $this->createBackup($package['manifest']);
@@ -146,7 +146,7 @@ class ApplicationUpdater
     }
 
     /** @param array<string, mixed> $manifest */
-    public function preflight(array $manifest, int $archiveSize, bool $databaseBackupConfirmed): void
+    public function preflight(array $manifest, int $archiveSize): void
     {
         if (! class_exists(\ZipArchive::class)) {
             throw new RuntimeException('PHP ZipArchive 拡張が必要です。');
@@ -189,8 +189,8 @@ class ApplicationUpdater
         }
 
         DB::connection()->getPdo();
-        if (DB::getDriverName() !== 'sqlite' && ! $databaseBackupConfirmed) {
-            throw new RuntimeException('外部データベースのバックアップ確認が必要です。');
+        if (DB::getDriverName() !== 'sqlite') {
+            throw new RuntimeException('対応データベースは SQLite のみです。');
         }
     }
 
@@ -278,16 +278,14 @@ class ApplicationUpdater
         }
 
         $database = null;
-        if (DB::getDriverName() === 'sqlite') {
-            $databasePath = DB::connection()->getDatabaseName();
-            if ($databasePath !== ':memory:' && is_file($databasePath)) {
-                DB::statement('PRAGMA wal_checkpoint(FULL)');
-                DB::disconnect();
-                if (! copy($databasePath, $directory.'/database.sqlite')) {
-                    throw new RuntimeException('SQLiteデータベースをバックアップできません。');
-                }
-                $database = $databasePath;
+        $databasePath = DB::connection()->getDatabaseName();
+        if ($databasePath !== ':memory:' && is_file($databasePath)) {
+            DB::statement('PRAGMA wal_checkpoint(FULL)');
+            DB::disconnect();
+            if (! copy($databasePath, $directory.'/database.sqlite')) {
+                throw new RuntimeException('SQLiteデータベースをバックアップできません。');
             }
+            $database = $databasePath;
         }
 
         file_put_contents($directory.'/backup.json', json_encode([

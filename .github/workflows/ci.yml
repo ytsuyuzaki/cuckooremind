@@ -15,30 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
-    services:
-      mysql:
-        image: mysql:8.0
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-          MYSQL_DATABASE: laravel_test
-          TZ: Asia/Tokyo
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-
     env:
       APP_ENV: testing
       APP_DEBUG: true
-      DB_CONNECTION: mysql
-      DB_HOST: 127.0.0.1
-      DB_PORT: 3306
-      DB_DATABASE: laravel_test
-      DB_USERNAME: root
-      DB_PASSWORD: ""
+      DB_CONNECTION: sqlite
+      DB_DATABASE: database/database_testing.sqlite
       CACHE_DRIVER: file
       SESSION_DRIVER: file
       QUEUE_CONNECTION: sync
@@ -93,18 +74,11 @@ jobs:
               exit 1
             fi
           fi
+          touch database/database_testing.sqlite
           php artisan key:generate --force
-
-      - name: Wait for MySQL
-        run: |
-          for i in {1..30}; do
-            mysqladmin ping -h 127.0.0.1 -uroot && break
-            sleep 2
-          done
 
       - name: Run migrations (if needed)
         run: php artisan migrate --force
-        continue-on-error: true
 
       - name: Run tests
         run: php artisan test

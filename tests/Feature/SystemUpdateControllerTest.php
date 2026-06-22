@@ -57,14 +57,14 @@ class SystemUpdateControllerTest extends TestCase
             ->assertSessionHasErrors('current_password');
     }
 
-    public function test_system_admin_can_start_the_confirmed_update(): void
+    public function test_system_admin_can_start_the_update(): void
     {
         Http::fake(['*' => Http::response([$this->release()])]);
         $admin = User::factory()->systemAdmin()->create();
         $updater = $this->mock(ApplicationUpdater::class);
         $updater->shouldReceive('update')
             ->once()
-            ->withArgs(fn (array $release, int $userId, bool $confirmed) => $release['version'] === 'v0.0.3' && $userId === $admin->id && ! $confirmed)
+            ->withArgs(fn (array $release, int $userId) => $release['version'] === 'v0.0.3' && $userId === $admin->id)
             ->andReturn(['status' => 'succeeded']);
 
         $this->actingAs($admin)

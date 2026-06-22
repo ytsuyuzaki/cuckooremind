@@ -23,7 +23,7 @@ php artisan app:update
 php artisan app:update:status
 ```
 
-非対話実行では `--yes` を指定します。MySQL/PostgreSQLの場合は、外部バックアップを取得した後に `--database-backup-confirmed` も指定してください。
+非対話実行では `--yes` を指定します。
 
 ## 復旧する
 
@@ -35,7 +35,7 @@ php artisan app:update:restore
 
 バックアップと状態・ログは `storage/app/updates/` に保存されます。復旧にも失敗してメンテナンスモードが維持された場合は、ファイルとDBを確認した後に `php artisan up` を実行してください。
 
-SQLiteは更新前のDBファイルを自動保存・復元します。MySQL/PostgreSQLは自動復元の対象外なので、更新前にホスティングサービス等で完全なバックアップを取得してください。
+SQLite DBは更新前に自動保存され、更新失敗時に復元されます。
 
 ## 設定
 
