@@ -46,6 +46,17 @@
             @endif
 
             <li class="mt-auto">
+                @if(Auth::user()->is_system_admin)
+                <a href="{{ route('system-updates.index') }}"
+                    class="{{ request()->routeIs('system-updates.*') ? 'bg-gray-50 text-indigo-600' : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50' }} group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6">
+                    <svg class="h-6 w-6 shrink-0 text-gray-400 group-hover:text-indigo-600" fill="none"
+                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M19.5 12c0-1.232-.046-2.453-.138-3.662A4.5 4.5 0 0015.162 4.138 48.654 48.654 0 0012 4.035c-1.061 0-2.116.034-3.162.103a4.5 4.5 0 00-4.2 4.2A48.667 48.667 0 004.5 12c0 1.232.046 2.453.138 3.662a4.5 4.5 0 004.2 4.2c1.046.069 2.1.103 3.162.103 1.061 0 2.116-.034 3.162-.103a4.5 4.5 0 004.2-4.2c.092-1.21.138-2.43.138-3.662zM12 8.25v7.5m3-3L12 15.75 9 12.75" />
+                    </svg>
+                    システム更新
+                </a>
+                @endif
                 <a href="{{ route('setting.edit') }}"
                     class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:text-indigo-600 hover:bg-gray-50">
                     <svg class="h-6 w-6 shrink-0 text-gray-400 group-hover:text-indigo-600" fill="none"

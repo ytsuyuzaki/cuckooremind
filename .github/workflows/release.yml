@@ -9,6 +9,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      RELEASE_VERSION: ${{ github.ref_name }}
+      RELEASE_ARCHIVE: cuckooremind-${{ github.ref_name }}.zip
     permissions:
       contents: write
 
@@ -45,10 +48,34 @@ jobs:
         run: bash bin/make-zip.sh
 
       - name: Rename ZIP with tag name
-        run: mv cuckooremind.zip cuckooremind-${{ github.ref_name }}.zip
+        run: mv cuckooremind.zip "$RELEASE_ARCHIVE"
+
+      - name: Verify release package
+        run: |
+          unzip -p "$RELEASE_ARCHIVE" update-manifest.json > manifest.json
+          test "$(jq -r .version manifest.json)" = "$RELEASE_VERSION"
+          unzip -l "$RELEASE_ARCHIVE" | grep -q 'update-manifest.json'
+          ! unzip -l "$RELEASE_ARCHIVE" | grep -qE '(^|/)[.]git/'
+          php scripts/verify-release-package.php "$RELEASE_ARCHIVE" "$RELEASE_VERSION"
+          sha256sum "$RELEASE_ARCHIVE" > checksums.txt
+
+      - name: Smoke test new installation
+        run: |
+          install_dir=$(mktemp -d)
+          unzip -q "$RELEASE_ARCHIVE" -d "$install_dir"
+          cd "$install_dir"
+          php artisan migrate:status
+          php artisan about --only=environment
+
+      - name: Smoke test upgrades from supported legacy releases
+        run: |
+          bash scripts/smoke-test-upgrade.sh "$RELEASE_ARCHIVE" "$RELEASE_VERSION" https://github.com/ytsuyuzaki/cuckooremind/releases/download/v0.0.1/cuckooremind.zip
+          bash scripts/smoke-test-upgrade.sh "$RELEASE_ARCHIVE" "$RELEASE_VERSION" https://github.com/ytsuyuzaki/cuckooremind/releases/download/v0.0.2/cuckooremind-v0.0.2.zip
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          files: cuckooremind-${{ github.ref_name }}.zip
+          files: |
+            ${{ env.RELEASE_ARCHIVE }}
+            checksums.txt

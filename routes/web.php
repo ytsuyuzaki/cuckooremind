@@ -3,6 +3,7 @@
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SetupController;
+use App\Http\Controllers\SystemUpdateController;
 use App\Http\Controllers\TopController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,4 +36,13 @@ Route::middleware([
     Route::get('reminders/json/export', [ReminderController::class, 'export'])->name('reminders.export');
     Route::post('reminders/json/import', [ReminderController::class, 'import'])->name('reminders.import');
     Route::resource('reminders', ReminderController::class);
+
+    Route::middleware('system-admin')->prefix('system/updates')->name('system-updates.')->group(function () {
+        Route::get('/', [SystemUpdateController::class, 'index'])->name('index');
+        Route::post('refresh', [SystemUpdateController::class, 'refresh'])->middleware('throttle:6,1')->name('refresh');
+        Route::get('status', [SystemUpdateController::class, 'status'])->name('status');
+        Route::post('/', [SystemUpdateController::class, 'update'])
+            ->middleware('throttle:2,1')
+            ->name('update');
+    });
 });
