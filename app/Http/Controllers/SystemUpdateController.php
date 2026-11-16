@@ -9,7 +9,9 @@ use App\Services\Updates\UpdateStateStore;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
 
 class SystemUpdateController extends Controller
@@ -76,6 +78,40 @@ class SystemUpdateController extends Controller
             return redirect()->route('system-updates.index')->with('success', 'アプリケーションを更新しました。');
         } catch (Throwable $exception) {
             return redirect()->route('system-updates.index')->withErrors(['update' => $exception->getMessage()]);
+        }
+    }
+
+    public function downloadEnvironment(): BinaryFileResponse
+    {
+        $path = app()->environmentFilePath();
+        abort_unless(is_file($path) && is_readable($path), 404);
+
+        $response = response()->download($path, '.env', ['Content-Type' => 'application/octet-stream']);
+        $response->headers->set('Cache-Control', 'private, no-store');
+
+        return $response;
+    }
+
+    public function downloadDatabase(): BinaryFileResponse
+    {
+        $database = DB::connection();
+        abort_unless($database->getDriverName() === 'sqlite', 404);
+
+        $path = tempnam(sys_get_temp_dir(), 'cuckooremind-backup-');
+        abort_if($path === false, 500, 'SQLiteデータベースをバックアップできません。');
+
+        try {
+            // SQLite creates a consistent standalone copy, including committed WAL changes.
+            $database->statement('VACUUM main INTO ?', [$path]);
+
+            $response = response()->download($path, 'database.sqlite', ['Content-Type' => 'application/vnd.sqlite3']);
+            $response->headers->set('Cache-Control', 'private, no-store');
+
+            return $response->deleteFileAfterSend();
+        } catch (Throwable $exception) {
+            unlink($path);
+
+            throw $exception;
         }
     }
 

@@ -50,6 +50,14 @@
             </ul>
         </section>
 
+        <section class="rounded-lg bg-white p-6 shadow">
+            <h2 class="text-lg font-semibold text-gray-900">更新前バックアップ</h2>
+            <div class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                <a href="{{ route('system-updates.backup.environment') }}" class="text-indigo-700 underline">.env をダウンロード</a>
+                <a href="{{ route('system-updates.backup.database') }}" class="text-indigo-700 underline">SQLite データベースをダウンロード</a>
+            </div>
+        </section>
+
         @if (!empty($state['started_at']) || !empty($state['finished_at']) || !empty($state['backup']))
             <section class="rounded-lg bg-white p-6 text-sm shadow">
                 <h2 class="text-lg font-semibold text-gray-900">直近の更新処理</h2>
