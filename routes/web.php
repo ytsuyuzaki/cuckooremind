@@ -41,6 +41,8 @@ Route::middleware([
         Route::get('/', [SystemUpdateController::class, 'index'])->name('index');
         Route::post('refresh', [SystemUpdateController::class, 'refresh'])->middleware('throttle:6,1')->name('refresh');
         Route::get('status', [SystemUpdateController::class, 'status'])->name('status');
+        Route::get('backup/environment', [SystemUpdateController::class, 'downloadEnvironment'])->name('backup.environment');
+        Route::get('backup/database', [SystemUpdateController::class, 'downloadDatabase'])->name('backup.database');
         Route::post('/', [SystemUpdateController::class, 'update'])
             ->middleware('throttle:2,1')
             ->name('update');
