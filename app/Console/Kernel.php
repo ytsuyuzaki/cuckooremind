@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('app:send')->everyMinute();
+        $schedule->command('app:notify-update')->weeklyOn(Schedule::MONDAY, '9:00')->withoutOverlapping();
         $schedule->command('queue:work --stop-when-empty --queue=high,default --sleep=3 --tries=3 --max-time=50')->everyMinute();
         $schedule->command('cache:clear')->dailyAt('4:56');
     }
